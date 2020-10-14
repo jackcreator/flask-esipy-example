@@ -45,6 +45,11 @@ logger.addHandler(console)
 app = Flask(__name__)
 app.config.from_object(config)
 
+#app.config["SECRET_KEY"] = "b'\xa0/\xac\xd6\xebM\x15\x7f\xd6\xfb+\xa2%P\xaa\x13'"
+#app.config["SQLALCHEMY_DATABASE_URI"]= f"mysql+pymysql://{USER}:{PASSWORD}@{PUBLIC_IP_ADDRESS}/{DBNAME}?unix_socket=/cloudsql/{PROJECT_ID}:{REGION}:{INSTANCE_NAME}"
+#app.config["SQLALCHEMY_DATABASE_URI"]= f"mysql+pymysql://{USER}:{PASSWORD}@{PUBLIC_IP_ADDRESS}/{DBNAME}"
+
+
 # init db
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -151,7 +156,7 @@ def login():
     session['token'] = token
     return redirect(esisecurity.get_auth_uri(
         state=token,
-        scopes=['esi-wallet.read_character_wallet.v1']
+        scopes=['esi-wallet.read_character_wallet.v1','esi-corporations.read_structures.v1','publicData']
     ))
 
 
@@ -203,6 +208,8 @@ def callback():
     user.character_name = cdata['name']
     user.update_token(auth_response)
 
+    print (cdata)
+
     # now the user is ready, so update/create it and log the user
     try:
         db.session.merge(user)
@@ -237,10 +244,23 @@ def index():
         )
         wallet = esiclient.request(op)
 
+        op3 = esiapp.op['get_characters_character_id'](
+            character_id=current_user.character_id
+        )
+        char = esiclient.request(op3)
+        print(char)
+
+        op2 = esiapp.op['get_corporations_corporation_id_structures'](
+            corporation_id=98656712
+        )
+        structures = esiclient.request(op2)
+    #print (esiapp.op)
+    #print(current_user)
     return render_template('base.html', **{
         'wallet': wallet,
+        'structures':structures,
     })
 
 
 if __name__ == '__main__':
-    app.run(port=config.PORT, host=config.HOST)
+    app.run() #port=config.PORT, host=config.HOST

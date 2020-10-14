@@ -1,8 +1,15 @@
+# This file tells Python which modules it needs to import
+SQLAlchemy==1.3.12      
+# If your database is MySQL, uncomment the following line:
+PyMySQL==0.9.3
+# If your database is PostgreSQL, uncomment the following line:
+#pg8000==1.13.2
+
 # webapp libs
 Flask>=0.12.1
 Flask-Login>=0.4.0
 Flask-Migrate>=2.0.3
-sqlalchemy>=1.1.9
+
 
 # because simplejson is better than built in json and flask uses it
 simplejson>=3.10.0
